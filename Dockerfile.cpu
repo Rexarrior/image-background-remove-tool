@@ -2,7 +2,7 @@ FROM python:3.10.4 as builder
 WORKDIR /app
 
 # Models download stage
-RUN pip3 install --no-cache-dir tqdm==4.64.0 requests==2.27.1
+RUN pip3 install --no-cache-dir tqdm==4.66.1 requests==2.31.0
 RUN mkdir -p ./carvekit/utils/
 RUN mkdir -p ./carvekit/ml/files
 COPY ./carvekit/__init__.py ./carvekit/__init__.py

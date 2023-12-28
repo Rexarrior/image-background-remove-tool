@@ -74,8 +74,8 @@ It can be briefly described as
 > The project supports python versions from 3.8 to 3.10.4
 ## 🏷 Setup for GPU processing:  
 1. Make sure you have an NVIDIA GPU with 8 GB VRAM.
-2. Install `CUDA Toolkit and Video Driver for your GPU`
-3. `pip install carvekit --extra-index-url https://download.pytorch.org/whl/cu113`
+2. Install `CUDA Toolkit 12.1 and Video Driver for your GPU`
+3. `pip install carvekit --extra-index-url https://download.pytorch.org/whl/cu121`
 > The project supports python versions from 3.8 to 3.10.4
 ## 🧰 Interact via code:  
 ### If you don't need deep configuration or don't want to deal with it
