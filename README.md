@@ -71,12 +71,12 @@ It can be briefly described as
 
 ## 🏷 Setup for CPU processing:
 1. `pip install carvekit --extra-index-url https://download.pytorch.org/whl/cpu`
-> The project has been tested on Python versions ranging from 3.9 to 3.10.13.
+> The project has been tested on Python versions ranging from 3.9 to 3.11.7.
 ## 🏷 Setup for GPU processing:  
 1. Make sure you have an NVIDIA GPU with 8 GB VRAM.
 2. Install `CUDA Toolkit 12.1 and Video Driver for your GPU`
 3. `pip install carvekit --extra-index-url https://download.pytorch.org/whl/cu121`
-> The project has been tested on Python versions ranging from 3.9 to 3.10.13.
+> The project has been tested on Python versions ranging from 3.9 to 3.11.7.
 ## 🧰 Interact via code:  
 ### If you don't need deep configuration or don't want to deal with it
 ``` python
