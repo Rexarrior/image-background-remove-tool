@@ -25,7 +25,7 @@ def req_file(filename: str, folder: str = "."):
     # you may also want to remove whitespace characters
     # Example: `\n` at the end of each line
     if os.getenv("COLAB_PACKAGE_RELEASE") is not None:
-        return [re.sub("(~=.*)|(==.*)|(typing.*)", "", x.strip()) for x in content]
+        return [re.sub("(>=.*)|(~=.*)|(==.*)|(typing.*)", "", x.strip()) for x in content]
     return [x.strip() for x in content]
 
 
