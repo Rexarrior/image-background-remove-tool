@@ -5,7 +5,7 @@ import typing
 import sqlalchemy
 
 
-class CreditsManager(BaseDatabaseManager):
+class AccountManager(BaseDatabaseManager):
     def create_account_from_pydantic(
         self, account_data: AccountSchema,
         session: typing.Optional[sqlalchemy.orm.Session] = None
@@ -60,14 +60,14 @@ class CreditsManager(BaseDatabaseManager):
             if session and is_session_managed:
                 session.close()
 
-    def get_credits_by_token(
+    def get_account_by_token(
         self, token: str, session: typing.Optional[sqlalchemy.orm.Session] = None
     ) -> typing.Optional[int]:
         session, is_session_managed = (session, False) or (self.get_session(), True)
         try:
             account = session.query(AccountModel).filter_by(token=token).first()
             if account:
-                return account.credits
+                return account
             return None
         finally:
             if session and is_session_managed:

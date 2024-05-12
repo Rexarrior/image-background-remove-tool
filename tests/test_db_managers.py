@@ -56,14 +56,14 @@ def account_data():
 
 def test_create_subscription(db_manager, subscription_data):
     with db_manager.get_session() as session:
-        subscription = db_manager.subscriptions_manager.create_subscription_from_pydantic(subscription_data, session)
+        subscription = db_manager.subscriptions.create_subscription_from_pydantic(subscription_data, session)
         assert subscription.id is not None
         assert subscription.name == subscription_data.name
 
 
 def test_update_subscription(db_manager, subscription_data):
     with db_manager.get_session() as session:
-        subscription = db_manager.subscriptions_manager\
+        subscription = db_manager.subscriptions\
                                 .create_subscription_from_pydantic(subscription_data,
                                                                     session)
         updated_data = SubscriptionSchema(
@@ -73,7 +73,7 @@ def test_update_subscription(db_manager, subscription_data):
             price=subscription.price,
             duration=subscription.duration
         )
-        updated_subscription = db_manager.subscriptions_manager.update_subscription_from_pydantic(
+        updated_subscription = db_manager.subscriptions.update_subscription_from_pydantic(
             updated_data, session
         )
         assert updated_subscription.name == updated_data.name
@@ -82,28 +82,35 @@ def test_update_subscription(db_manager, subscription_data):
 
 def test_delete_subscription(db_manager, subscription_data):
     with db_manager.get_session() as db_session:
-        subscription = db_manager.subscriptions_manager.create_subscription_from_pydantic(subscription_data, db_session)
-        db_manager.subscriptions_manager.delete_subscription_by_id(subscription.id, db_session)
+        subscription = db_manager.subscriptions.create_subscription_from_pydantic(subscription_data, db_session)
+        db_manager.subscriptions.delete_subscription_by_id(subscription.id, db_session)
         deleted_subscription = db_session.query(SubscriptionModel).filter_by(id=subscription.id).first()
         assert deleted_subscription is None
 
+def test_get_subscription_by_id(db_manager, subscription_data):
+    with db_manager.get_session() as db_session:
+        subscription = db_manager.subscriptions.create_subscription_from_pydantic(subscription_data, db_session)
+        retrieved_subscription = db_manager.subscriptions.get_subscription_by_id(subscription.id, db_session)
+        assert subscription.id == retrieved_subscription.id
+        retrieved_subscription = db_manager.subscriptions.get_subscription_by_id("invalid id", db_session)
+        assert retrieved_subscription is None
 
 def test_create_account(db_manager, account_data):
     with db_manager.get_session() as session:
-        account = db_manager.credits_manager.create_account_from_pydantic(account_data, session)
+        account =db_manager.accounts.create_account_from_pydantic(account_data, session)
         assert account.user_id is not None
         assert account.token == account_data.token
 
 
 def test_update_account(db_manager, account_data):
     with db_manager.get_session() as session:
-        account = db_manager.credits_manager.create_account_from_pydantic(account_data, session)
+        account =db_manager.accounts.create_account_from_pydantic(account_data, session)
         updated_data = AccountSchema(
             token="updated_token",
             credits=account.credits,
             user_id=account.user_id
         )
-        updated_account = db_manager.credits_manager.update_account_from_pydantic(
+        updated_account =db_manager.accounts.update_account_from_pydantic(
              updated_data, session
         )
         assert updated_account.token == updated_data.token
@@ -112,42 +119,44 @@ def test_update_account(db_manager, account_data):
 
 def test_delete_account(db_manager, account_data):
     with db_manager.get_session() as db_session:
-        account = db_manager.credits_manager.create_account_from_pydantic(account_data, db_session)
-        db_manager.credits_manager.delete_account_by_id(account.user_id, db_session)
+        account =db_manager.accounts.create_account_from_pydantic(account_data, db_session)
+        db_manager.accounts.delete_account_by_id(account.user_id, db_session)
         deleted_account = db_session.query(AccountModel).filter_by(token=account.token).first()
         assert deleted_account is None
 
 
-def test_get_credits_by_token(db_manager, account_data):
+def test_get_account_by_token(db_manager, account_data):
     with db_manager.get_session() as db_session:
-        account = db_manager.credits_manager.create_account_from_pydantic(account_data, db_session)
-        credits = db_manager.credits_manager.get_credits_by_token(account.token, db_session)
-        assert credits == account_data.credits
+        account =db_manager.accounts.create_account_from_pydantic(account_data, db_session)
+        retrieved_account =db_manager.accounts.get_account_by_token(account.token, db_session)
+        assert retrieved_account.user_id == account.user_id
+        retrieved_account =db_manager.accounts.get_account_by_token("invalid_token", db_session)
+        assert retrieved_account is None
 
 
 def test_reserve_credits(db_manager, account_data):
     with db_manager.get_session() as db_session:
-        account = db_manager.credits_manager.create_account_from_pydantic(account_data, db_session)
-        reservation_id = db_manager.credits_manager.reserve_credits(account.user_id, 500, "personal", db_session)
+        account =db_manager.accounts.create_account_from_pydantic(account_data, db_session)
+        reservation_id =db_manager.accounts.reserve_credits(account.user_id, 500, "personal", db_session)
         assert reservation_id is not None
 
 
 def test_deduct_credits_by_reservation_id(db_manager, account_data):
     with db_manager.get_session() as db_session:
-        account = db_manager.credits_manager.create_account_from_pydantic(account_data, db_session)
-        reservation_id = db_manager.credits_manager.reserve_credits(account.user_id, 1000, "personal", db_session)
-        db_manager.credits_manager.deduct_credits_by_reservation_id(reservation_id, db_session)
+        account =db_manager.accounts.create_account_from_pydantic(account_data, db_session)
+        reservation_id =db_manager.accounts.reserve_credits(account.user_id, 1000, "personal", db_session)
+        db_manager.accounts.deduct_credits_by_reservation_id(reservation_id, db_session)
         assert account.credits == account_data.credits - 1000
 
 
 def test_cancel_reservation(db_manager, account_subscription_data):
     with db_manager.get_session() as db_session:
-        reservation = db_manager.credits_manager.reserve_credits(
+        reservation =db_manager.accounts.reserve_credits(
             user_id=account_subscription_data.user_id,
             credits=100,
             credits_type="personal",
             session=db_session
         )
-        db_manager.credits_manager.cancel_reservation_by_id(reservation, db_session)
+        db_manager.accounts.cancel_reservation_by_id(reservation, db_session)
         canceled_reservation = db_session.query(CreditsReservationModel).get(reservation)
         assert canceled_reservation is None

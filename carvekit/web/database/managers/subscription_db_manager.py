@@ -23,6 +23,21 @@ class SubscriptionManager(BaseDatabaseManager):
         finally:
             if session and is_session_managed:
                 session.close()
+    
+    def get_subscription_by_id(self, subscription_id: int,
+                               session: typing.Optional[sqlalchemy.orm.Session] = None) -> SubscriptionModel:
+        session, is_session_managed = (session, False) or (self.get_session(), True)
+        try:
+            subscription = session.query(SubscriptionModel).get(subscription_id)
+            if not subscription:
+                return None
+            return subscription
+        except Exception as e:
+            session.rollback()
+            raise e
+        finally:
+            if session and is_session_managed:
+                session.close()
 
     def update_subscription_from_pydantic(
         self,
@@ -77,6 +92,25 @@ class SubscriptionManager(BaseDatabaseManager):
         finally:
             if session and is_session_managed:
                 session.close()
+    
+    def get_account_subscription_by_id(self, user_id: str, subscription_id: int,
+                                       session: typing.Optional[sqlalchemy.orm.Session] = None) -> AccountSubscriptionModel:
+        session, is_session_managed = (session, False) or (self.get_session(), True)
+        try:
+            account_subscription = session.query(AccountSubscriptionModel).filter_by(
+                user_id=user_id, subscription_id=subscription_id
+            ).first()
+            if not account_subscription:
+               return None
+            return account_subscription
+        except Exception as e:
+            session.rollback()
+            raise e
+        finally:
+            if session and is_session_managed:
+                session.close()
+
+
 
     def update_account_subscription_from_pydantic(
         self,
