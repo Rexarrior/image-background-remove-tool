@@ -5,6 +5,7 @@ from typing_extensions import Literal
 import torch.cuda
 from pydantic import BaseModel, validator
 
+from carvekit.web.schemas.database_credentials import DatabaseCredentials, SqliteCredentials
 
 class AuthConfig(BaseModel):
     """Config for web api token authentication"""
@@ -86,20 +87,6 @@ class MLConfig(BaseModel):
         return value
 
 
-class PgCredentials(BaseModel):
-    """Postgres credentials"""
-
-    host: str = "localhost"
-    """Postgres host"""
-    port: int = 5432
-    """Postgres port"""
-    database: str = "carvekit"
-    """Postgres database"""
-    user: str = "postgres"
-    """Postgres user"""
-    password: str = ""
-    """Postgres password"""
-
 class WebAPIConfig(BaseModel):
     """FastAPI app config"""
 
@@ -111,4 +98,4 @@ class WebAPIConfig(BaseModel):
     """Config for ml part of framework"""
     auth: AuthConfig = AuthConfig()
     """Config for web api token authentication """
-    pg_creds: PgCredentials = PgCredentials()
+    db: DatabaseCredentials = SqliteCredentials()

@@ -6,7 +6,7 @@ from .base import BaseWithTimestamps
 
 
 class AccountModel(BaseWithTimestamps):
-    __tablename__ = 'account_credits'
+    __tablename__ = 'accounts'
 
     user_id = Column(String, primary_key=True, unique=True) # TODO foreing key to user model
     token = Column(String, unique=True) # API key

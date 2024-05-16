@@ -12,13 +12,12 @@ from fastapi.openapi.models import Response
 from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
-from carvekit.web.deps import config, ml_processor
+from carvekit.web.deps import config, ml_processor, db_manager
 from carvekit.web.handlers.response import handle_response, Authenticate
 from carvekit.web.responses.api import error_dict
 from carvekit.web.schemas.request import Parameters
 from carvekit.web.utils.net_utils import is_loopback
-
-api_router = APIRouter(prefix="", tags=["api"])
+from carvekit.web.routers.router import api_router
 
 
 # noinspection PyBroadException
@@ -68,6 +67,7 @@ async def removebg(
     image = None
     bg = None
     parameters = None
+    img_size = 0
     if (
         content_type == "application/x-www-form-urlencoded"
         or "multipart/form-data" in content_type
@@ -79,14 +79,18 @@ async def removebg(
             if len(image_file_b64) == 0:
                 return JSONResponse(content=error_dict("Empty image"), status_code=400)
             try:
-                image = Image.open(io.BytesIO(base64.b64decode(image_file_b64)))
+                img_io = io.BytesIO(base64.b64decode(image_file_b64))
+                img_size = img_io.getbuffer().nbytes
+                image = Image.open(img_io)
             except BaseException:
                 return JSONResponse(
                     content=error_dict("Error decode image!"), status_code=400
                 )
         elif image_url:
             try:
-                image = Image.open(io.BytesIO(requests.get(image_url).content))
+                img_io = io.BytesIO(requests.get(image_url).content)
+                img_size = img_io.getbuffer().nbytes
+                image = Image.open(img_io)
             except BaseException:
                 return JSONResponse(
                     content=error_dict("Error download image!"), status_code=400
@@ -94,7 +98,9 @@ async def removebg(
         elif image_file:
             if len(image_file) == 0:
                 return JSONResponse(content=error_dict("Empty image"), status_code=400)
-            image = Image.open(io.BytesIO(image_file))
+            img_io = io.BytesIO(image_file)
+            img_size = img_io.getbuffer().nbytes
+            image = Image.open(img_io)
 
         if bg_image_file:
             if len(bg_image_file) == 0:
@@ -163,6 +169,7 @@ async def removebg(
                 image = Image.open(
                     io.BytesIO(requests.get(parameters.image_url).content)
                 )
+                0
             except BaseException:
                 return JSONResponse(
                     content=error_dict("Error download image!"), status_code=400
@@ -184,39 +191,3 @@ async def removebg(
     result = ml_processor.job_result(job_id)
     return handle_response(result, image)
 
-
-@api_router.get("/account")
-def account():
-    """
-    Stub for compatibility with remove.bg api libraries
-    """
-    return JSONResponse(
-        content={
-            "data": {
-                "attributes": {
-                    "credits": {
-                        "total": 99999,
-                        "subscription": 99999,
-                        "payg": 99999,
-                        "enterprise": 99999,
-                    },
-                    "api": {"free_calls": 99999, "sizes": "all"},
-                }
-            }
-        },
-        status_code=200,
-    )
-
-
-@api_router.get("/admin/config")
-def status(auth: str = Depends(Authenticate)):
-    """
-    Returns the current server config.
-    """
-    if not auth or auth != "admin":
-        return JSONResponse(
-            content=error_dict("Authentication failed"), status_code=403
-        )
-    resp = JSONResponse(content=config.json(), status_code=200)
-    resp.headers["X-Credits-Charged"] = "0"
-    return resp

@@ -2,8 +2,11 @@ from os import getenv
 from typing import Union
 
 from loguru import logger
+from carvekit.web.database.engines import PgEngine, SqlliteDbEngine
+from carvekit.web.database.managers import DbFacade
 
 from carvekit.web.schemas.config import WebAPIConfig, MLConfig, AuthConfig
+from carvekit.web.schemas.database_credentials import PgCredentials, SqliteCredentials, DatabaseCredentials
 from carvekit.api.interface import Interface
 from carvekit.ml.wrap.fba_matting import FBAMatting
 from carvekit.ml.wrap.u2net import U2NET
@@ -81,6 +84,7 @@ def init_config() -> WebAPIConfig:
                 if getenv("CARVEKIT_ALLOWED_TOKENS") is None
                 else getenv("CARVEKIT_ALLOWED_TOKENS").split(","),
             ),
+            db=read_db_config()
         )
     )
 
@@ -163,3 +167,22 @@ def init_interface(config: Union[WebAPIConfig, MLConfig]) -> Interface:
         device=config.device,
     )
     return interface
+
+def read_db_config() -> DatabaseCredentials:
+    db_type = getenv("CARVEKIT_DB_TYPE", "sqlite")
+    if db_type == "sqlite":
+        return SqliteCredentials(   
+            engine_type="sqlite",
+            connection_string=getenv("CARVEKIT_DB_CONNECTION_STRING", "sqlite:///:memory:"),
+        )
+    elif db_type == "postgres":
+        default_creds = PgCredentials()
+        return PgCredentials(
+                host=getenv("POSTGRES_HOST", default_creds.host),
+                port=getenv("POSTGRES_PORT", default_creds.port),
+                user=getenv("POSTGRES_USER", default_creds.user),
+                password=getenv("POSTGRES_PASSWORD", default_creds.password),
+                database=getenv("POSTGRES_DB", default_creds.database),
+            )
+    else:
+        raise NotImplementedError

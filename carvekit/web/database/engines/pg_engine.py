@@ -1,4 +1,4 @@
-from carvekit.web.schemas.config import PgCredentials
+from carvekit.web.schemas.database_credentials import PgCredentials
 from carvekit.web.database.engines.db_engine import AbstractDbEngine
 import sqlalchemy
 

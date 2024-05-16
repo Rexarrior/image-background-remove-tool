@@ -139,3 +139,17 @@ class AccountManager(BaseDatabaseManager):
         finally:
             if session and is_session_managed:
                 session.close()
+    
+    def calculate_personal_credits(self, user_token: str, session: typing.Optional[sqlalchemy.orm.Session] = None) -> int:
+        session, is_session_managed = (session, False) or (self.get_session(), True)
+        try:
+            account = session.query(AccountModel).filter_by(token=user_token).first()
+            reservations = session.query(CreditsReservationModel).filter_by(user_id=account.user_id).all()
+            sum_reservations = sum([reservation.credits for reservation in reservations])
+            return account.credits - sum_reservations
+        except Exception as e:
+            session.rollback()
+            raise e
+        finally:
+            if session and is_session_managed:
+                session.close()

@@ -7,7 +7,7 @@ from starlette.staticfiles import StaticFiles
 
 from carvekit import version
 from carvekit.web.deps import config
-from carvekit.web.routers.api_router import api_router
+from carvekit.web.routers.router import api_router
 
 app = FastAPI(title="CarveKit Web API", version=version)
 
