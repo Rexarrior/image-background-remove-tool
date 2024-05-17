@@ -2,7 +2,7 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from carvekit.web.database.engines.db_engine import AbstractDbEngine
 from carvekit.web.database.models  import *
-from carvekit.web.database.models.base import BaseWithTimestamps
+from carvekit.web.database.models.base import Base
 import typing
 
 class BaseDatabaseManager:
@@ -32,4 +32,4 @@ class BaseDatabaseManager:
         session.close()
 
     def init_db(self):
-        BaseWithTimestamps.metadata.create_all(self.engine)
+       Base.metadata.create_all(self.engine)

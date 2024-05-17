@@ -3,8 +3,11 @@ import pytest
 from fastapi.testclient import TestClient
 from carvekit.web.routers.account import api_router
 from unittest.mock import MagicMock
-from carvekit.web.database.managers import DBSingleton
 from carvekit.web.schemas.config import WebAPIConfig
+import json
+
+from carvekit.web.schemas.database_credentials import SqliteCredentials
+
 
 @pytest.fixture
 def client():
@@ -21,7 +24,8 @@ def account_test_data():
 
 @pytest.fixture
 def config():
-    return WebAPIConfig()
+   cfg = WebAPIConfig()
+   cfg.db = SqliteCredentials()
 
 def test_account_authentication_failed(client):
     response = client.get("/account")
@@ -57,7 +61,7 @@ def test_account_successful(client):
 def test_create_account(client, config, account_test_data):
     response = client.post("/account", json=account_test_data)
     assert response.status_code == 200
-    assert response.json() == account_test_data
+    assert json.dumps(response.json(), sort_keys=True) == json.dumps(account_test_data, sort_keys=True)
 
 
 def test_update_account(client):

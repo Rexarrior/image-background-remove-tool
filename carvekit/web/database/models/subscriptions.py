@@ -5,6 +5,7 @@ from sqlalchemy import (ForeignKey, create_engine, Column,
                         String, Integer, DateTime, Interval, Enum)
 
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 class SubscriptionModel(BaseWithTimestamps):
     __tablename__ = 'subscriptions'

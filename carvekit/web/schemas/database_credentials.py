@@ -23,4 +23,4 @@ class PgCredentials(DatabaseCredentials):
 class SqliteCredentials(DatabaseCredentials):
     engine_type: str = "sqlite"
 
-    connection_string: str = "sqlite:///:memory:"
+    connection_string: str = "sqlite:///carvekit.sqlite"

@@ -1,6 +1,7 @@
 from sqlalchemy import (ForeignKey, create_engine, Column,
                         String, Integer, DateTime, Enum)
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from .base import BaseWithTimestamps
 
@@ -16,3 +17,4 @@ class AccountModel(BaseWithTimestamps):
     # Should be in organization credits model
     # credits_enterprice = Column(Integer, nullable=False)
 
+    reservations = relationship("CreditsReservationModel", back_populates="account")

@@ -171,9 +171,10 @@ def init_interface(config: Union[WebAPIConfig, MLConfig]) -> Interface:
 def read_db_config() -> DatabaseCredentials:
     db_type = getenv("CARVEKIT_DB_TYPE", "sqlite")
     if db_type == "sqlite":
+        default_creds = SqliteCredentials()
         return SqliteCredentials(   
             engine_type="sqlite",
-            connection_string=getenv("CARVEKIT_DB_CONNECTION_STRING", "sqlite:///:memory:"),
+            connection_string=getenv("CARVEKIT_DB_CONNECTION_STRING", default_creds.connection_string),
         )
     elif db_type == "postgres":
         default_creds = PgCredentials()

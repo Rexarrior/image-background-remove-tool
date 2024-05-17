@@ -2,6 +2,7 @@ from sqlalchemy import (ForeignKey, create_engine, Column,
                         String, Integer, DateTime, Enum)
 from .base import BaseWithTimestamps
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 
 class CreditsReservationModel(BaseWithTimestamps):
@@ -12,3 +13,4 @@ class CreditsReservationModel(BaseWithTimestamps):
     credits = Column(Integer, nullable=False) # reserved credits
     credits_type = Column(Enum('personal', 'subscription', 'enterprise',
                           name='credits_reservation_type'), nullable=False) # type of reserved credits
+    account = relationship("AccountModel", back_populates="reservations")
